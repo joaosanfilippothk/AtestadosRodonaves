@@ -298,7 +298,11 @@ table.heat th,table.heat td{padding:0 6px}
 .checks .ico{color:var(--good);margin-top:2px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:10px}
 .row.end{justify-content:flex-end;margin-top:0}
-.row.tmpl{justify-content:center;margin-top:8px}.row.tmpl .muted{font-size:12px}
+.subrow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.subrow .sub{margin:0}
+body.compact:not(.free) .pg-dados .drop{padding:8px;margin-top:4px}
+body.compact:not(.free) .pg-dados .kv li{padding:2px 0}
+body.compact:not(.free) .pg-dados .checks{gap:4px;margin:6px 0}
+body.compact:not(.free) .pg-dados .row{margin-top:6px}
 details.defs summary{cursor:pointer;font-weight:700;font-size:16px;color:var(--brand)}
 .defs ul{margin:12px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
 .gate{min-height:100vh;background:var(--brand);display:grid;place-items:center;padding:16px}
@@ -333,6 +337,25 @@ details.defs summary{cursor:pointer;font-weight:700;font-size:16px;color:var(--b
 .dlg-actions{display:flex;justify-content:flex-end;gap:8px;padding:10px 20px 18px;flex-wrap:wrap}
 @media (prefers-reduced-motion:reduce){.spin{animation-duration:2s}.toast{transition:none}}
 
+/* ---- notebook (janela com menos de 780 px de altura): menus e espaços mais enxutos ---- */
+body.app.compact:not(.free) .shell{grid-template-columns:172px minmax(0,1fr)}
+body.compact:not(.free) .side-logo{padding:16px 16px 4px}
+body.compact:not(.free) .side-logo img{width:122px}
+body.compact:not(.free) .mi{height:42px;padding:0 14px;font-size:14px}
+body.compact:not(.free) .upd{padding:8px 10px 12px;font-size:12px}
+body.compact:not(.free) .topbar{height:60px;padding:0 16px}
+body.compact:not(.free) .topbar h1{font-size:22px}
+body.compact:not(.free) .ib{width:32px;height:32px}
+body.compact:not(.free) .bar{height:14px}
+body.compact:not(.free) .page{padding:10px 14px}
+body.compact:not(.free) .pg{gap:10px}
+body.compact:not(.free) .card{padding:7px 12px 9px}
+body.compact:not(.free) .ct{font-size:16px}
+body.compact:not(.free) .kpi{height:100px;padding:8px}
+body.compact:not(.free) .kpi-l{font-size:16px}
+body.compact:not(.free) .kpi-v{font-size:40px}
+body.compact:not(.free) .kpis.fit .kpi{height:74px}
+body.compact:not(.free) .kpis.fit .kpi-v{font-size:27px}
 /* ---- modo livre (celular ou janela muito pequena): colunas empilhadas, com rolagem ---- */
 body.free .shell{grid-template-columns:minmax(0,1fr);height:auto}
 body.free .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;overflow:visible}
@@ -2245,11 +2268,10 @@ function showDefs() {
 }
 function pageDados(onlyImport) {
   const cardImport = h('section', { class: 'card ' + (onlyImport ? 's12' : 's8') }, h('h2', { class: 'ct' }, onlyImport ? 'Importe a planilha para começar' : 'Importar Planilha'),
-    h('p', { class: 'sub' }, 'Colunas esperadas (os nomes são reconhecidos mesmo com acentos, maiúsculas ou espaços):'),
+    h('div', { class: 'subrow' }, h('p', { class: 'sub' }, 'Colunas esperadas (os nomes são reconhecidos mesmo com acentos, maiúsculas ou espaços):'),
+      h('button', { type: 'button', class: 'btn sm', title: 'Planilha vazia, com os cabeçalhos no padrão e uma aba de instruções', onclick: baixarModelo }, icon('download', 14), 'Baixar planilha modelo')),
     h('div', { class: 'tags' }, Object.keys(ALIASES).filter(k => k !== 'DTENTREGA').map(k => h('span', { class: 'tag' + (REQUIRED.includes(k) ? ' req' : '') }, k === 'FAIXAETARIA' ? 'FAIXA ETÁRIA' : k)), h('span', { class: 'tag opt' }, 'DTENTREGA (opcional)')),
     dropZone(),
-    h('div', { class: 'row tmpl' }, h('button', { type: 'button', class: 'btn', onclick: baixarModelo }, icon('download', 16), 'Baixar planilha modelo'),
-      h('span', { class: 'muted' }, 'Vazia, só com os cabeçalhos no padrão e uma aba de instruções.')),
     h('p', { class: 'note' }, 'Obrigatórias: CHAPA e DTINICIO. Se QTD_DIAS vier vazia, os dias são calculados por DTFINAL − DTINICIO + 1. Linhas idênticas (mesma coligada, chapa, datas, horas e CID) são contadas uma vez.'));
   if (onlyImport) return h('div', { class: 'pg pg-dados grid' }, cardImport);
   const Q = qualityStats(), imp = (S.meta.imports || []).slice().reverse();
@@ -2302,7 +2324,9 @@ function fit() {
   document.body.classList.toggle('free', free);
   if (!elStage || !app) return;
   if (free) { elStage.style.cssText = ''; return; }
-  const s = Math.min(vh / DH0, vw / DW0);
+  const compact = vh < 780; // notebook: área de desenho mais baixa (letras maiores) e menus mais enxutos
+  document.body.classList.toggle('compact', compact);
+  const s = Math.min(vh / (compact ? 690 : DH0), vw / DW0);
   elStage.style.cssText = `width:${vw / s}px;height:${vh / s}px;transform:scale(${s})`;
 }
 
